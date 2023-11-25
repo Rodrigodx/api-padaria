@@ -6,9 +6,9 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-class User(models.Model):
-    name = models.CharField(max_length=40)
-    userProduct = models.ForeignKey(Product, on_delete=models.CASCADE)
+class Order(models.Model):
+    clientName = models.CharField(max_length=40)
+    orderProduct = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return self.clientName

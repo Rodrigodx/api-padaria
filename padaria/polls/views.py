@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from .models import Product, User
+from .models import Product, Order
 
 
 def say_hello_user(request):
@@ -14,11 +14,11 @@ from django.http import JsonResponse
 
 def get_all_users(request):
     if request.method == 'GET':
-        users = User.objects.all()
-        data = [{"id": user.id, "name": user.name, "userProduct": {
-            "id": user.userProduct_id,
-            "name": user.userProduct.name}} for user in users]
-        return JsonResponse({"users": data})
+        orders = Order.objects.all()
+        data = [{"id": orders.id, "clientName": orders.name, "userProduct": {
+            "id": orders.orderProduct_id,
+            "name": orders.orderProduct.name}} for order in orders]
+        return JsonResponse({"orders": data})
     else:
         return JsonResponse({'error': 'Only GET requests are allowed'}, status=405)
 
@@ -35,19 +35,19 @@ def create_user(request):
         try:
             data = json.loads(request.body.decode('utf-8'))
 
-            name = data.get('name', None)
-            user_product_id  = data.get('userProduct', None)
+            name = data.get('clientName', None)
+            order_product_id  = data.get('userProduct', None)
 
-            if not name or user_product_id  is None:
+            if not name or order_product_id  is None:
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
             try:
-                product = Product.objects.get(pk=user_product_id)
+                product = Product.objects.get(pk=order_product_id)
             except Product.DoesNotExist:
                 return JsonResponse({'error': 'Product not found'}, status=400)
 
-            user = User.objects.create(name=name, userProduct= product)
-            return JsonResponse({'message': 'User created successfully', 'user_id': user.id})
+            order = Order.objects.create(clientName=name, orderProduct= product)
+            return JsonResponse({'message': 'User created successfully', 'user_id': order.id})
 
         except json.JSONDecodeError as e:
             return JsonResponse({'error': 'Invalid JSON format'}, status=400)
