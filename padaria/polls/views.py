@@ -12,12 +12,12 @@ def say_hello_user(request):
 
 from django.http import JsonResponse
 
-def get_all_users(request):
+def get_all_orders(request):
     if request.method == 'GET':
         orders = Order.objects.all()
-        data = [{"id": orders.id, "clientName": orders.name, "userProduct": {
-            "id": orders.orderProduct_id,
-            "name": orders.orderProduct.name}} for order in orders]
+        data = [{"id": order.id, "clientName": order.clientName, "userProduct": {
+            "id": order.orderProduct_id,
+            "name": order.orderProduct.name}} for order in orders]
         return JsonResponse({"orders": data})
     else:
         return JsonResponse({'error': 'Only GET requests are allowed'}, status=405)
@@ -30,15 +30,15 @@ def get_all_products(request):
 
 @csrf_exempt
 @require_POST
-def create_user(request):
+def create_order(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body.decode('utf-8'))
 
-            name = data.get('clientName', None)
-            order_product_id  = data.get('userProduct', None)
+            clientName = data.get('clientName', None)
+            order_product_id  = data.get('orderProduct', None)
 
-            if not name or order_product_id  is None:
+            if not clientName or order_product_id  is None:
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
             try:
@@ -46,8 +46,8 @@ def create_user(request):
             except Product.DoesNotExist:
                 return JsonResponse({'error': 'Product not found'}, status=400)
 
-            order = Order.objects.create(clientName=name, orderProduct= product)
-            return JsonResponse({'message': 'User created successfully', 'user_id': order.id})
+            order = Order.objects.create(clientName=clientName, orderProduct= product)
+            return JsonResponse({'message': 'User created successfully', 'order_id': order.id})
 
         except json.JSONDecodeError as e:
             return JsonResponse({'error': 'Invalid JSON format'}, status=400)
