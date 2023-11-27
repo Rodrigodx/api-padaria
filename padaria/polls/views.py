@@ -3,14 +3,17 @@ import json
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 
+from .forms import OrderForm
 from .models import Product, Order
 
 
 def say_hello_user(request):
-    return render(request, 'polls.html')
+    return render(request, 'base.html')
 
-from django.http import JsonResponse
+def render_form(request):
+    return render(request, 'form.html')
 
 def get_all_orders(request):
     if request.method == 'GET':
@@ -55,7 +58,6 @@ def create_order(request):
             return JsonResponse({'error': f'Error creating user: {str(e)}'}, status=500)
     else:
         return JsonResponse({'error': 'Only POST requests are allowed'})
-
 
 
 
